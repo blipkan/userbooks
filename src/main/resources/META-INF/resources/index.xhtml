@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:p="http://primefaces.org/ui"
+        xmlns:f="http://xmlns.jcp.org/jsf/core">
+<f:view locale="#{langView.locale}">
+    <f:loadBundle basename="i18n.text" var="text"/>
+
+    <h:head>
+        <title><h:outputText value="#{text['page.title']}"/></title>
+
+        <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+        <h:outputStylesheet library="webjars" name="font-awesome/4.7.0/css/font-awesome.min-jsf.css"/>
+        <h:outputStylesheet>
+            .books-dt {
+
+            }
+
+            .dt-header {
+                color: #000;
+                font-size: larger;
+            }
+
+            .dt-footer {
+                color1: #999;
+                opacity: .8;
+                font-size: smaller;
+            }
+
+        </h:outputStylesheet>
+
+
+        <script type="text/javascript">
+            PrimeFaces.locales ['ru'] = {
+                closeText: 'Закрыть',
+                prevText: 'Назад',
+                nextText: 'Вперёд',
+                monthNames: ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'],
+                monthNamesShort: ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'],
+                dayNames: ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Субота'],
+                dayNamesShort: ['Воск', 'Пон', 'Вт', 'Ср', 'Четв', 'Пят', 'Суб'],
+                dayNamesMin: ['В', 'П', 'Вт', 'С ', 'Ч', 'П ', 'Сб'],
+                weekHeader: 'Неделя',
+                firstDay: 1,
+                isRTL: false,
+                showMonthAfterYear: false,
+                yearSuffix: '',
+                timeOnlyTitle: 'Только время',
+                timeText: 'Время',
+                hourText: 'Час',
+                minuteText: 'Минута',
+                secondText: 'Секунда',
+                currentText: 'Сегодня',
+                ampm: false,
+                month: 'Месяц',
+                week: 'неделя',
+                day: 'День',
+                allDayText: 'Весь день'
+            };
+        </script>
+
+    </h:head>
+
+    <h:body>
+
+        <p:toolbar>
+            <f:facet name="left">
+                <p:outputLabel value="#{text['page.title']}" style="font-size: 1.4em;"/>
+            </f:facet>
+            <f:facet name="right">
+                <h:form id="langForm">
+                    <p:selectOneMenu id="lang" value="#{langView.lang}" style="width:70px;">
+                        <f:selectItems value="#{langView.languages}"/>
+                        <p:ajax event="change" update="@all"/>
+                    </p:selectOneMenu>
+
+                </h:form>
+            </f:facet>
+        </p:toolbar>
+
+        <h:form id="booksForm">
+
+            <h:panelGrid columns="6" cellpadding="5">
+                <p:autoComplete id="fio" value="#{booksView.fio}"
+                                completeMethod="#{booksView.completeText}"
+                                minQueryLength="1"
+                                maxResults="20"
+                                size="40"
+                                label="#{text['user.fio.label']}"
+                                title="#{text['user.fio.prompt']}"
+                                style="margin-right:30px;"
+                />
+
+                <p:outputLabel for="startDate" value="#{text['form.startDate.lbl']}:"/>
+
+                <p:calendar id="startDate" value="#{booksView.startDate}"
+                            binding="#{startDate}"
+                            pattern="#{text['date.pattern']}"
+                            maxlength="10"
+                            size="10"
+                            style="width: auto"
+                />
+
+
+                <p:outputLabel for="endDate" value="#{text['form.endDate.lbl']}:"/>
+
+                <p:calendar id="endDate" value="#{booksView.endDate}"
+                            pattern="#{text['date.pattern']}"
+                            maxlength="10"
+                            size="10"
+                >
+                    <f:validator validatorId="dateRangeValidator"/>
+                    <f:attribute name="startDateAttr" value="#{startDate}"/>
+                </p:calendar>
+
+
+                <p:commandButton value="#{text['btn.search']}" id="btnSearch"
+                                 title="#{text['btn.search.prompt']}"
+                                 action="#{booksView.doSearch}"
+                                 update=":booksForm"
+                                 icon="fa fa-fw fa-search"
+                />
+
+
+            </h:panelGrid>
+
+
+            <p:dataTable id="books" var="item" value="#{booksView.model}"
+                         paginator="true" rows="10"
+                         paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+                         rowsPerPageTemplate="5,10,20,50,100" selectionMode="single"
+                         currentPageReportTemplate="#{text['w.books']} {startRecord} - {endRecord} #{text['w.of']} {totalRecords}, #{text['w.page']}: {currentPage}/{totalPages}"
+                         paginatorAlwaysVisible="true"
+                         paginatorPosition="both"
+                         selection="#{booksView.selectedItem}"
+                         lazy="true"
+                         editable="true" editMode="cell" widgetVar="cellBooks"
+                         stickyHeader="false"
+                         tableStyle="width:auto" resizableColumns="true"
+                         tableStyleClass="book-dt"
+                         rendered="#{booksView.rendered}"
+            >
+
+                <p:ajax event="cellEdit" listener="#{booksView.onCellEdit}" update1="msgs"/>
+
+                <f:facet name="header">
+                    <h:outputFormat value="#{booksView.tableHeaderText}" styleClass="dt-header"/>
+                </f:facet>
+
+                <p:column headerText="#{text['book.id']}" sortBy="#{item.id}">
+                    <h:outputText value="#{item.id}"/>
+                </p:column>
+
+                <p:column headerText="#{text['book.title']}" sortBy="#{item.title}" id="title" style="width: 90%">
+                    <p:cellEditor>
+                        <f:facet name="output"><h:outputText value="#{item.title}"/></f:facet>
+                        <f:facet name="input">
+                            <p:inputText value="#{item.title}"
+                                         label="#{text['book.title.label']}"
+                                         title="#{text['book.title.prompt']}"
+                                         style="width: 100%"
+                            >
+                                <f:validateLength minimum="2" maximum="255"/>
+                            </p:inputText>
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+
+                <p:column headerText="#{text['book.date']}" sortBy="#{item.date}" id="date" style="text-align: center">
+                    <p:cellEditor>
+                        <f:facet name="output"><h:outputText value="#{item.date}">
+                            <f:convertDateTime type="date" pattern="#{text['date.pattern']}"/>
+                        </h:outputText></f:facet>
+                        <f:facet name="input">
+                            <p:calendar pattern="#{text['date.pattern']}" value="#{item.date}"
+                                        label="#{text['book.date.label']}"
+                                        title="#{text['book.date.prompt']}"
+                                        maxlength="10"
+                                        size="10"
+                                        style="width: auto"
+                            />
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+
+                <f:facet name="footer">
+                    <h:outputFormat value="#{text['msg.search.report.foundBooks']}" styleClass="dt-footer">
+                        <f:param value="#{booksView.model.rowCount}"/>
+                    </h:outputFormat>
+                </f:facet>
+
+            </p:dataTable>
+            <p:growl id="msgs" showDetail="true" autoUpdate="true"
+                     sticky="false"
+                     escape="false"/>
+
+        </h:form>
+
+    </h:body>
+</f:view>
+</html>

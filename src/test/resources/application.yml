@@ -1,0 +1,49 @@
+spring.profiles.active: test
+
+server:
+  context-path: /
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/books?useSSL=false&useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=Europe/Moscow&characterEncoding=UTF-8
+    username: app
+    password: app
+    driver-class-name: com.mysql.jdbc.Driver
+  jpa:
+    hibernate:
+      #ddl-auto: create-drop
+      ddl-auto: create
+      use-new-id-generator-mappings: false
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+    properties:
+      hibernate:
+        enable_lazy_load_no_trans: true
+        dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+
+  main.banner-mode: 'off'
+  messages:
+    basename: i18n/text
+    encoding: UTF-8
+
+logging:
+  level:
+    root: WARN
+    org.springframework.web: WARN
+    org.hibernate: WARN
+    com.ex.books: INFO
+
+app:
+  dummy:
+    enabled: false
+    totalUsers: 50
+    minBooksPerUser: 8
+    maxBooksPerUser: 50
+    booksStartYear: 1930
+
+
+
+
+
+
+
